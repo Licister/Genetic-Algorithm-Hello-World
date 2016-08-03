@@ -4,6 +4,8 @@ This code was done for [Challenge #249: Hello World Genetic or Evolutionary Algo
   
 The goal of the algorithm is to reach a target string of characters, numbers, punctuation, spaces and other special characters. The algorithm generates a random population of possible strings and then, via selection, reproduction and mutation, generates new populations until the target string is obtained.
   
+The file `genetic.R` contains all the necessary code, while the file `output.R` contains example outputs. 
+  
 The algorithm prints certain information to the console every time a new best solution is found. That information is the number of the generation, the fitness of the string and the string itself. At the end, it will also print out the time it took to reach the target string.
   
   
@@ -22,7 +24,12 @@ Parameters of the main function, `genetic`:
 * `rep_per`: percentage of solutions generated via reproduction. Default: 0.7. The actual number of solutions generated will be rounded up.
 * `mut_rate`: rate of mutation, that is, how many changes will be applied to the solution to be mutated (in percentage). Default: 0.2. The actual number of changes will be rounded up.
 * `seed`: the seed, in order to make things reproducible. Default: 1.
-
-
-
   
+  
+  
+Time taken to complete the challenge: 2 hours.
+  
+  
+  
+Known bugs:
+* The console print doesn't align properly for generations with three or more digits.

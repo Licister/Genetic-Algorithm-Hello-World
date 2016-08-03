@@ -23,7 +23,7 @@ tournament <- function(contenders) {
 }
 
 #1 point cross-over
-reproduce <- function(parent1, parent2) {
+reproduce <- function(parent1, parent2, target_v) {
       position <- sample(1:(length(target_v)-1), 1)
       child1 <- c(parent1[1:position], parent2[(position+1):length(target_v)])
       child2 <- c(parent2[1:position], parent1[(position+1):length(target_v)])
@@ -31,7 +31,7 @@ reproduce <- function(parent1, parent2) {
 }
 
 #Mutation: specific number of changes
-mutate <- function(ninja) {
+mutate <- function(ninja, mut_rate) {
       mut <- length(ninja)
       ninja[sample(1:mut, ceiling(mut*mut_rate), replace = T)] <- sample(allvals, ceiling(mut * mut_rate), replace = T)
       return(list(ninja))
@@ -39,15 +39,15 @@ mutate <- function(ninja) {
 
 
 genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0.2, seed = 1) {
-	  #Start counting the time
+	#Start counting the time
       ptm <- proc.time()
-	  #Set everything
+	#Set everything
       set.seed(seed)
       elite_n = ceiling(n * elite_per)
       rep_n = ceiling(n * rep_per)
       pop <- list()
       target_v <- unlist(strsplit(target, NULL))
-      best_fit <- 14
+      best_fit <- length(target_v) + 1
       gen <- 0
       
       #Generate first population
@@ -65,7 +65,7 @@ genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0
             #Reproduction: tournament method, 1 point crossover
             children <- list()
             while(length(children) < rep_n) {
-             children <- c(children, reproduce(tournament(pop[sample(1:n, 2)]), tournament(pop[sample(1:n, 2)])))
+             children <- c(children, reproduce(tournament(pop[sample(1:n, 2)]), tournament(pop[sample(1:n, 2)]), target_v))
             }
             
             
@@ -73,7 +73,7 @@ genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0
             mut_n = n - length(children) - elite_n
             turtles <- list()
             while(length(turtles) < mut_n) {
-             turtles <- c(turtles, mutate(pop[[sample(1:n, 1)]]$string))
+             turtles <- c(turtles, mutate(pop[[sample(1:n, 1)]]$string, mut_rate))
             }
             
             
@@ -84,13 +84,13 @@ genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0
             }
             elite <- pop[sort(fitness, index.return = T)$ix[1:elite_n]]
             
-			#Join children and turtles, calculate their fit
+		#Join children and turtles, calculate their fit
             pop <- c(children, turtles)
             for(i in 1:length(pop)) {
                   pop[[i]] <- list(string = pop[[i]], fitness = hamming(target_v, pop[[i]]))
             }
             
-			#Put the elite with the rest of the population
+		#Put the elite with the rest of the population
             pop <- c(pop, elite)
             
             #Check best fit
@@ -99,7 +99,7 @@ genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0
                   fitness <- c(fitness, pop[[i]][[2]]) 
             }
             
-			#Update best fit and print to console
+		#Update best fit and print to console
             if(min(fitness) < best_fit) {
                   best_fit <- min(fitness)
                   cat(paste0("Gen: ", gen), "|", paste0("Fitness: ", best_fit), "|", 
@@ -108,6 +108,6 @@ genetic <- function(target, n = 50, elite_per = 0.2, rep_per = 0.7, mut_rate = 0
             
             
       }
-	  #Finish by printing elapsed time
+	#Finish by printing elapsed time
       cat("\n", "Elapsed time: ", proc.time()[3] - ptm[3], " seconds.", sep = "")    
 }
